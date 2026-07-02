@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expo Vendor Directory</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #4a4a4a;
+            --border-color: #e1e1e8;
+            --header-bg: #1a1a1a;
+            --header-text: #ffffff;
+            --code-bg: #e0e0e0;
+            --code-text: #333333;
+            --input-bg: #ffffff;
+            --input-text: #1a1a1a;
+            --accent: #007bff;
+            --accent-bg: #e8f1ff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --card-bg: #1e1e1e;
+                --text-main: #f5f5f5;
+                --text-muted: #b3b3b3;
+                --border-color: #333333;
+                --header-bg: #000000;
+                --header-text: #ffffff;
+                --code-bg: #333333;
+                --code-text: #cccccc;
+                --input-bg: #2d2d2d;
+                --input-text: #ffffff;
+                --accent: #4da3ff;
+                --accent-bg: #1a2c40;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            background: var(--header-bg);
+            color: var(--header-text);
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            margin: 0 0 16px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 14px 14px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background: var(--input-bg);
+            color: var(--input-text);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) inset;
+        }
+
+        input[type="text"]:focus {
+            outline: 2px solid var(--accent);
+        }
+
+        select#categoryFilter {
+            width: 100%;
+            padding: 12px 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            background: var(--input-bg);
+            color: var(--input-text);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) inset;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 18px;
+        }
+
+        select#categoryFilter:focus {
+            outline: 2px solid var(--accent);
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .result-count {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0 0 12px 4px;
+        }
+
+        .vendor-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            transition: transform 0.1s ease-in-out;
+        }
+
+        .vendor-card:active {
+            transform: scale(0.98);
+        }
+
+        .vendor-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vendor-code {
+            font-size: 0.8rem;
+            color: var(--code-text);
+            background: var(--code-bg);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .vendor-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0 0 10px 0;
+        }
+
+        .vendor-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vendor-category {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-bg);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .notes-indicator {
+            display: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #b8860b;
+            background: #fdf3d8;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .notes-indicator {
+                color: #e0c15c;
+                background: #3a331a;
+            }
+        }
+
+        .vendor-card {
+            cursor: pointer;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            display: none;
+            font-size: 1.1rem;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 16px 16px 0 0;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 2px 0 0 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .modal-textarea {
+            width: 100%;
+            min-height: 140px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--input-text);
+            font-size: 1rem;
+            font-family: inherit;
+            padding: 12px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .modal-textarea:focus {
+            outline: 2px solid var(--accent);
+        }
+
+        .modal-status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            min-height: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Expo Vendor Directory</h1>
+        <div class="controls">
+            <div class="search-container">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search vendors..." onkeyup="filterVendors()">
+            </div>
+            <select id="categoryFilter" onchange="filterVendors()">
+                <option value="all">All Categories</option><option value="AI/ML Platforms & Models">AI/ML Platforms & Models</option><option value="APIs & Integration">APIs & Integration</option><option value="CI/CD & Workflow Automation">CI/CD & Workflow Automation</option><option value="Cloud & Enterprise Platforms">Cloud & Enterprise Platforms</option><option value="Cloud Infrastructure & Compute">Cloud Infrastructure & Compute</option><option value="Communications & Messaging">Communications & Messaging</option><option value="Data & Document Processing">Data & Document Processing</option><option value="Databases & Data Storage">Databases & Data Storage</option><option value="DevOps & Infrastructure">DevOps & Infrastructure</option><option value="Developer Tools & IDEs">Developer Tools & IDEs</option><option value="Enterprise & Business Tools">Enterprise & Business Tools</option><option value="Observability & Monitoring">Observability & Monitoring</option><option value="Other">Other</option><option value="Security & Identity">Security & Identity</option><option value="Testing & QA">Testing & QA</option><option value="Web Scraping & Data Extraction">Web Scraping & Data Extraction</option>
+            </select>
+        </div>
+    </header>
+    <div class="container" id="vendorList">
+        <p class="result-count" id="resultCount"></p>
+        
+        <div class="vendor-card" data-name="Microsoft" data-category="Cloud & Enterprise Platforms" data-code="Featured" data-slug="Featured">
+            <div class="vendor-name">
+                Microsoft
+                <span class="vendor-code">Featured</span>
+            </div>
+            <p class="vendor-desc">Global technology giant offering cloud computing, enterprise software, and leading AI services.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud & Enterprise Platforms</span>
+                <span class="notes-indicator" id="notes-ind-Featured">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="MINIMAX" data-category="AI/ML Platforms & Models" data-code="1" data-slug="1">
+            <div class="vendor-name">
+                MINIMAX
+                <span class="vendor-code">1</span>
+            </div>
+            <p class="vendor-desc">An AI startup developing powerful foundation models and generative AI applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-1">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Z.AI" data-category="AI/ML Platforms & Models" data-code="2" data-slug="2">
+            <div class="vendor-name">
+                Z.AI
+                <span class="vendor-code">2</span>
+            </div>
+            <p class="vendor-desc">An emerging startup providing artificial intelligence technology and platforms.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-2">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Amazon AGI Lab" data-category="AI/ML Platforms & Models" data-code="3" data-slug="3">
+            <div class="vendor-name">
+                Amazon AGI Lab
+                <span class="vendor-code">3</span>
+            </div>
+            <p class="vendor-desc">Amazon's research division focused on developing Artificial General Intelligence.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-3">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Google DeepMind" data-category="AI/ML Platforms & Models" data-code="4" data-slug="4">
+            <div class="vendor-name">
+                Google DeepMind
+                <span class="vendor-code">4</span>
+            </div>
+            <p class="vendor-desc">Premier AI research lab developing general-purpose artificial intelligence and solving complex scientific problems.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-4">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="OpenAI" data-category="AI/ML Platforms & Models" data-code="5" data-slug="5">
+            <div class="vendor-name">
+                OpenAI
+                <span class="vendor-code">5</span>
+            </div>
+            <p class="vendor-desc">Leading AI research organization behind industry-defining models like ChatGPT and GPT-4.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-5">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="together.ai" data-category="Cloud Infrastructure & Compute" data-code="P1" data-slug="P1">
+            <div class="vendor-name">
+                together.ai
+                <span class="vendor-code">P1</span>
+            </div>
+            <p class="vendor-desc">Cloud platform providing fast, scalable infrastructure for building and running open-source generative AI.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-P1">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="WorkOS" data-category="Security & Identity" data-code="P2" data-slug="P2">
+            <div class="vendor-name">
+                WorkOS
+                <span class="vendor-code">P2</span>
+            </div>
+            <p class="vendor-desc">API platform that enables developers to add enterprise features like SSO and SCIM to their apps quickly.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Security & Identity</span>
+                <span class="notes-indicator" id="notes-ind-P2">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="neo4j" data-category="Databases & Data Storage" data-code="P3" data-slug="P3">
+            <div class="vendor-name">
+                neo4j
+                <span class="vendor-code">P3</span>
+            </div>
+            <p class="vendor-desc">The world's leading graph database and analytics company, useful for complex data relationships and AI grounding.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-P3">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="arize" data-category="Observability & Monitoring" data-code="P4" data-slug="P4">
+            <div class="vendor-name">
+                arize
+                <span class="vendor-code">P4</span>
+            </div>
+            <p class="vendor-desc">Machine learning observability platform for troubleshooting and monitoring AI models and LLMs in production.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-P4">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Browserbase" data-category="Web Scraping & Data Extraction" data-code="P5" data-slug="P5">
+            <div class="vendor-name">
+                Browserbase
+                <span class="vendor-code">P5</span>
+            </div>
+            <p class="vendor-desc">Headless web browser API infrastructure built for reliable AI agents and web scrapers.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Web Scraping & Data Extraction</span>
+                <span class="notes-indicator" id="notes-ind-P5">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="qodo" data-category="Developer Tools & IDEs" data-code="P6" data-slug="P6">
+            <div class="vendor-name">
+                qodo
+                <span class="vendor-code">P6</span>
+            </div>
+            <p class="vendor-desc">AI coding assistant and testing tool (formerly CodiumAI) that helps developers write better code with automated tests.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-P6">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Sonar" data-category="Developer Tools & IDEs" data-code="P7" data-slug="P7">
+            <div class="vendor-name">
+                Sonar
+                <span class="vendor-code">P7</span>
+            </div>
+            <p class="vendor-desc">Clean code platform providing automated code review tools for code quality and security.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-P7">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="reducto" data-category="Data & Document Processing" data-code="P8" data-slug="P8">
+            <div class="vendor-name">
+                reducto
+                <span class="vendor-code">P8</span>
+            </div>
+            <p class="vendor-desc">Document ingestion and parsing API designed to extract highly accurate text from PDFs for LLMs.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Data & Document Processing</span>
+                <span class="notes-indicator" id="notes-ind-P8">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="ORACLE" data-category="Cloud & Enterprise Platforms" data-code="P9" data-slug="P9">
+            <div class="vendor-name">
+                ORACLE
+                <span class="vendor-code">P9</span>
+            </div>
+            <p class="vendor-desc">Global provider of enterprise cloud infrastructure, database software, and business applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud & Enterprise Platforms</span>
+                <span class="notes-indicator" id="notes-ind-P9">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Braintrust" data-category="Observability & Monitoring" data-code="P10" data-slug="P10">
+            <div class="vendor-name">
+                Braintrust
+                <span class="vendor-code">P10</span>
+            </div>
+            <p class="vendor-desc">Enterprise-grade platform for evaluating, testing, and managing LLM applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-P10">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="PayPal" data-category="Enterprise & Business Tools" data-code="P11" data-slug="P11">
+            <div class="vendor-name">
+                PayPal
+                <span class="vendor-code">P11</span>
+            </div>
+            <p class="vendor-desc">Global digital payments platform enabling secure online financial transactions.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-P11">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="docker" data-category="DevOps & Infrastructure" data-code="P12" data-slug="P12">
+            <div class="vendor-name">
+                docker
+                <span class="vendor-code">P12</span>
+            </div>
+            <p class="vendor-desc">Leading platform for developing, shipping, and running applications in lightweight containers.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">DevOps & Infrastructure</span>
+                <span class="notes-indicator" id="notes-ind-P12">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="AWS" data-category="Cloud Infrastructure & Compute" data-code="P13" data-slug="P13">
+            <div class="vendor-name">
+                AWS
+                <span class="vendor-code">P13</span>
+            </div>
+            <p class="vendor-desc">Amazon Web Services, the world's most comprehensive and broadly adopted cloud platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-P13">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Akamai" data-category="Cloud Infrastructure & Compute" data-code="P14" data-slug="P14">
+            <div class="vendor-name">
+                Akamai
+                <span class="vendor-code">P14</span>
+            </div>
+            <p class="vendor-desc">Cloud company providing content delivery network (CDN), cybersecurity, and cloud computing services.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-P14">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="bright data" data-category="Web Scraping & Data Extraction" data-code="P15" data-slug="P15">
+            <div class="vendor-name">
+                bright data
+                <span class="vendor-code">P15</span>
+            </div>
+            <p class="vendor-desc">The world's largest web data platform providing proxy networks and web scraping tools.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Web Scraping & Data Extraction</span>
+                <span class="notes-indicator" id="notes-ind-P15">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Unblocked" data-category="Developer Tools & IDEs" data-code="P16" data-slug="P16">
+            <div class="vendor-name">
+                Unblocked
+                <span class="vendor-code">P16</span>
+            </div>
+            <p class="vendor-desc">AI tool that augments engineering workflows by answering questions using a team's entire codebase context.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-P16">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="runpod" data-category="Cloud Infrastructure & Compute" data-code="L-G 1" data-slug="L-G-1">
+            <div class="vendor-name">
+                runpod
+                <span class="vendor-code">L-G 1</span>
+            </div>
+            <p class="vendor-desc">Cloud computing platform tailored for deploying scalable AI and machine learning workloads on GPUs.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-L-G-1">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="turbopuffer" data-category="Databases & Data Storage" data-code="L-G 2" data-slug="L-G-2">
+            <div class="vendor-name">
+                turbopuffer
+                <span class="vendor-code">L-G 2</span>
+            </div>
+            <p class="vendor-desc">A fast, serverless vector search engine designed for building modern AI applications cost-effectively.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-L-G-2">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="stigg" data-category="Enterprise & Business Tools" data-code="L-G 3" data-slug="L-G-3">
+            <div class="vendor-name">
+                stigg
+                <span class="vendor-code">L-G 3</span>
+            </div>
+            <p class="vendor-desc">API-first platform for SaaS companies to build, manage, and optimize their pricing and packaging.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-L-G-3">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="yugabyteDB" data-category="Databases & Data Storage" data-code="L-G 4" data-slug="L-G-4">
+            <div class="vendor-name">
+                yugabyteDB
+                <span class="vendor-code">L-G 4</span>
+            </div>
+            <p class="vendor-desc">High-performance, distributed SQL database for building global, cloud-native applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-L-G-4">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="GRAVITEE" data-category="APIs & Integration" data-code="L-G 5" data-slug="L-G-5">
+            <div class="vendor-name">
+                GRAVITEE
+                <span class="vendor-code">L-G 5</span>
+            </div>
+            <p class="vendor-desc">Event-native API management and access management platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">APIs & Integration</span>
+                <span class="notes-indicator" id="notes-ind-L-G-5">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Meticulous" data-category="Testing & QA" data-code="L-G 6" data-slug="L-G-6">
+            <div class="vendor-name">
+                Meticulous
+                <span class="vendor-code">L-G 6</span>
+            </div>
+            <p class="vendor-desc">Automated UI testing platform that works by recording and intelligently replaying user sessions.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Testing & QA</span>
+                <span class="notes-indicator" id="notes-ind-L-G-6">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="oxylabs" data-category="Web Scraping & Data Extraction" data-code="L-G 7" data-slug="L-G-7">
+            <div class="vendor-name">
+                oxylabs
+                <span class="vendor-code">L-G 7</span>
+            </div>
+            <p class="vendor-desc">Premium proxy provider and web scraping platform for gathering public web data.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Web Scraping & Data Extraction</span>
+                <span class="notes-indicator" id="notes-ind-L-G-7">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Daytona" data-category="DevOps & Infrastructure" data-code="L-G 8" data-slug="L-G-8">
+            <div class="vendor-name">
+                Daytona
+                <span class="vendor-code">L-G 8</span>
+            </div>
+            <p class="vendor-desc">Open-source development environment manager for standardizing and automating workspaces.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">DevOps & Infrastructure</span>
+                <span class="notes-indicator" id="notes-ind-L-G-8">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="orkes" data-category="CI/CD & Workflow Automation" data-code="L-G 9" data-slug="L-G-9">
+            <div class="vendor-name">
+                orkes
+                <span class="vendor-code">L-G 9</span>
+            </div>
+            <p class="vendor-desc">Microservices orchestration platform built on Netflix Conductor to build reliable distributed applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">CI/CD & Workflow Automation</span>
+                <span class="notes-indicator" id="notes-ind-L-G-9">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="DATADOG" data-category="Observability & Monitoring" data-code="L-G 10" data-slug="L-G-10">
+            <div class="vendor-name">
+                DATADOG
+                <span class="vendor-code">L-G 10</span>
+            </div>
+            <p class="vendor-desc">Monitoring, security, and observability platform for cloud applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-L-G-10">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="druid" data-category="Databases & Data Storage" data-code="L-G 11" data-slug="L-G-11">
+            <div class="vendor-name">
+                druid
+                <span class="vendor-code">L-G 11</span>
+            </div>
+            <p class="vendor-desc">High-performance real-time analytics database designed for fast slice-and-dice exploration.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-L-G-11">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Snorkel" data-category="AI/ML Platforms & Models" data-code="L-G 12" data-slug="L-G-12">
+            <div class="vendor-name">
+                Snorkel
+                <span class="vendor-code">L-G 12</span>
+            </div>
+            <p class="vendor-desc">Data-centric AI platform that helps organizations programmatically label and manage training data.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-12">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Runlayer" data-category="Cloud Infrastructure & Compute" data-code="L-G 13" data-slug="L-G-13">
+            <div class="vendor-name">
+                Runlayer
+                <span class="vendor-code">L-G 13</span>
+            </div>
+            <p class="vendor-desc">Cloud infrastructure and application deployment platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-L-G-13">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Cleric" data-category="Observability & Monitoring" data-code="L-G 14" data-slug="L-G-14">
+            <div class="vendor-name">
+                Cleric
+                <span class="vendor-code">L-G 14</span>
+            </div>
+            <p class="vendor-desc">AI-powered autonomous Site Reliability Engineer (SRE) that helps resolve infrastructure incidents.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-L-G-14">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Sourcegraph" data-category="Developer Tools & IDEs" data-code="L-G 15" data-slug="L-G-15">
+            <div class="vendor-name">
+                Sourcegraph
+                <span class="vendor-code">L-G 15</span>
+            </div>
+            <p class="vendor-desc">Universal code search platform and creator of Cody, an AI coding assistant.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-L-G-15">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Temporal" data-category="CI/CD & Workflow Automation" data-code="L-G 16" data-slug="L-G-16">
+            <div class="vendor-name">
+                Temporal
+                <span class="vendor-code">L-G 16</span>
+            </div>
+            <p class="vendor-desc">Microservice orchestration platform for executing reliable and resilient workflows.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">CI/CD & Workflow Automation</span>
+                <span class="notes-indicator" id="notes-ind-L-G-16">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="BAND" data-category="Communications & Messaging" data-code="L-G 17" data-slug="L-G-17">
+            <div class="vendor-name">
+                BAND
+                <span class="vendor-code">L-G 17</span>
+            </div>
+            <p class="vendor-desc">Infrastructure or communications API platform provider.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Communications & Messaging</span>
+                <span class="notes-indicator" id="notes-ind-L-G-17">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="snyk" data-category="Security & Identity" data-code="L-G 18" data-slug="L-G-18">
+            <div class="vendor-name">
+                snyk
+                <span class="vendor-code">L-G 18</span>
+            </div>
+            <p class="vendor-desc">Developer security platform that helps organizations find and fix vulnerabilities in code and containers.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Security & Identity</span>
+                <span class="notes-indicator" id="notes-ind-L-G-18">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="FACTORY" data-category="Developer Tools & IDEs" data-code="L-G 19" data-slug="L-G-19">
+            <div class="vendor-name">
+                FACTORY
+                <span class="vendor-code">L-G 19</span>
+            </div>
+            <p class="vendor-desc">AI platform designed to automate and accelerate software engineering workflows.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-L-G-19">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Keycard" data-category="Enterprise & Business Tools" data-code="L-G 20" data-slug="L-G-20">
+            <div class="vendor-name">
+                Keycard
+                <span class="vendor-code">L-G 20</span>
+            </div>
+            <p class="vendor-desc">Enterprise expense management and corporate card platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-L-G-20">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Qdrant" data-category="Databases & Data Storage" data-code="L-G 21" data-slug="L-G-21">
+            <div class="vendor-name">
+                Qdrant
+                <span class="vendor-code">L-G 21</span>
+            </div>
+            <p class="vendor-desc">High-performance, massive-scale open-source vector database for AI apps.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-L-G-21">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Zed" data-category="Developer Tools & IDEs" data-code="L-G 22" data-slug="L-G-22">
+            <div class="vendor-name">
+                Zed
+                <span class="vendor-code">L-G 22</span>
+            </div>
+            <p class="vendor-desc">High-performance, multiplayer code editor written in Rust by the creators of Atom.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-L-G-22">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="AUTOMATTIC" data-category="Enterprise & Business Tools" data-code="L-G 23" data-slug="L-G-23">
+            <div class="vendor-name">
+                AUTOMATTIC
+                <span class="vendor-code">L-G 23</span>
+            </div>
+            <p class="vendor-desc">The company behind WordPress.com, WooCommerce, and Tumblr, shaping the open web.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-L-G-23">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Resolve.ai" data-category="Enterprise & Business Tools" data-code="L-G 24" data-slug="L-G-24">
+            <div class="vendor-name">
+                Resolve.ai
+                <span class="vendor-code">L-G 24</span>
+            </div>
+            <p class="vendor-desc">AI-powered IT service desk and employee support platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-L-G-24">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Lightrun" data-category="Observability & Monitoring" data-code="L-G 25" data-slug="L-G-25">
+            <div class="vendor-name">
+                Lightrun
+                <span class="vendor-code">L-G 25</span>
+            </div>
+            <p class="vendor-desc">Developer observability platform that allows adding logs and metrics to live apps dynamically.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-L-G-25">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="FriendliAI" data-category="AI/ML Platforms & Models" data-code="L-G 26" data-slug="L-G-26">
+            <div class="vendor-name">
+                FriendliAI
+                <span class="vendor-code">L-G 26</span>
+            </div>
+            <p class="vendor-desc">Generative AI serving engine focused on maximizing LLM inference speed and efficiency.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-26">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="baseten" data-category="Cloud Infrastructure & Compute" data-code="L-G 27" data-slug="L-G-27">
+            <div class="vendor-name">
+                baseten
+                <span class="vendor-code">L-G 27</span>
+            </div>
+            <p class="vendor-desc">Serverless infrastructure platform for deploying and running machine learning models fast.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-L-G-27">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="CIRCLE" data-category="Enterprise & Business Tools" data-code="L-G 28" data-slug="L-G-28">
+            <div class="vendor-name">
+                CIRCLE
+                <span class="vendor-code">L-G 28</span>
+            </div>
+            <p class="vendor-desc">Global financial technology firm and issuer of the USDC stablecoin.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-L-G-28">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="dynatrace" data-category="Observability & Monitoring" data-code="L-G 29" data-slug="L-G-29">
+            <div class="vendor-name">
+                dynatrace
+                <span class="vendor-code">L-G 29</span>
+            </div>
+            <p class="vendor-desc">Software intelligence platform providing application performance monitoring and AIOps.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-L-G-29">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="apify" data-category="Web Scraping & Data Extraction" data-code="L-G 30" data-slug="L-G-30">
+            <div class="vendor-name">
+                apify
+                <span class="vendor-code">L-G 30</span>
+            </div>
+            <p class="vendor-desc">Platform for web scraping and data extraction, turning websites into APIs.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Web Scraping & Data Extraction</span>
+                <span class="notes-indicator" id="notes-ind-L-G-30">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Airbyte" data-category="Databases & Data Storage" data-code="L-G 31" data-slug="L-G-31">
+            <div class="vendor-name">
+                Airbyte
+                <span class="vendor-code">L-G 31</span>
+            </div>
+            <p class="vendor-desc">Leading open-source data integration platform for building ELT data pipelines.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-L-G-31">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="langfuse" data-category="Observability & Monitoring" data-code="L-G 32" data-slug="L-G-32">
+            <div class="vendor-name">
+                langfuse
+                <span class="vendor-code">L-G 32</span>
+            </div>
+            <p class="vendor-desc">Open-source observability and analytics platform tailored for LLM applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-L-G-32">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="SUPABASE" data-category="Databases & Data Storage" data-code="L-G 33" data-slug="L-G-33">
+            <div class="vendor-name">
+                SUPABASE
+                <span class="vendor-code">L-G 33</span>
+            </div>
+            <p class="vendor-desc">Open-source Firebase alternative built on top of PostgreSQL.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-L-G-33">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="PlanetScale" data-category="Databases & Data Storage" data-code="L-G 34" data-slug="L-G-34">
+            <div class="vendor-name">
+                PlanetScale
+                <span class="vendor-code">L-G 34</span>
+            </div>
+            <p class="vendor-desc">Serverless MySQL platform designed for incredible scale and developer experience.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-L-G-34">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="LlamaIndex" data-category="AI/ML Platforms & Models" data-code="L-G 35" data-slug="L-G-35">
+            <div class="vendor-name">
+                LlamaIndex
+                <span class="vendor-code">L-G 35</span>
+            </div>
+            <p class="vendor-desc">The leading data framework for connecting custom data sources to large language models.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-35">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Tessl" data-category="Developer Tools & IDEs" data-code="L-G 36" data-slug="L-G-36">
+            <div class="vendor-name">
+                Tessl
+                <span class="vendor-code">L-G 36</span>
+            </div>
+            <p class="vendor-desc">An AI-native software development platform rethinking how code is written.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-L-G-36">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Vercel" data-category="Cloud Infrastructure & Compute" data-code="L-G 37" data-slug="L-G-37">
+            <div class="vendor-name">
+                Vercel
+                <span class="vendor-code">L-G 37</span>
+            </div>
+            <p class="vendor-desc">Frontend cloud platform for developing and deploying blazing-fast web experiences (creators of Next.js).</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-L-G-37">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Composio" data-category="APIs & Integration" data-code="L-G 38" data-slug="L-G-38">
+            <div class="vendor-name">
+                Composio
+                <span class="vendor-code">L-G 38</span>
+            </div>
+            <p class="vendor-desc">Integration platform that provides reliable tools and connections for AI agents.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">APIs & Integration</span>
+                <span class="notes-indicator" id="notes-ind-L-G-38">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="exa" data-category="AI/ML Platforms & Models" data-code="L-G 39" data-slug="L-G-39">
+            <div class="vendor-name">
+                exa
+                <span class="vendor-code">L-G 39</span>
+            </div>
+            <p class="vendor-desc">AI-powered web search API designed specifically for LLMs and AI agents (formerly Metaphor).</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-39">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Telnyx" data-category="Communications & Messaging" data-code="L-G 40" data-slug="L-G-40">
+            <div class="vendor-name">
+                Telnyx
+                <span class="vendor-code">L-G 40</span>
+            </div>
+            <p class="vendor-desc">Global connectivity platform and provider of voice, messaging, and networking APIs.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Communications & Messaging</span>
+                <span class="notes-indicator" id="notes-ind-L-G-40">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Deasy Labs" data-category="AI/ML Platforms & Models" data-code="L-G 41" data-slug="L-G-41">
+            <div class="vendor-name">
+                Deasy Labs
+                <span class="vendor-code">L-G 41</span>
+            </div>
+            <p class="vendor-desc">Emerging AI and tech research startup.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-41">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="LiveKit" data-category="Communications & Messaging" data-code="L-G 42" data-slug="L-G-42">
+            <div class="vendor-name">
+                LiveKit
+                <span class="vendor-code">L-G 42</span>
+            </div>
+            <p class="vendor-desc">Open-source WebRTC infrastructure for building scalable real-time audio and video apps.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Communications & Messaging</span>
+                <span class="notes-indicator" id="notes-ind-L-G-42">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="elastic" data-category="Observability & Monitoring" data-code="L-G 43" data-slug="L-G-43">
+            <div class="vendor-name">
+                elastic
+                <span class="vendor-code">L-G 43</span>
+            </div>
+            <p class="vendor-desc">Company behind Elasticsearch, providing solutions for enterprise search, observability, and security.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-L-G-43">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="ATLASSIAN" data-category="Enterprise & Business Tools" data-code="L-G 44" data-slug="L-G-44">
+            <div class="vendor-name">
+                ATLASSIAN
+                <span class="vendor-code">L-G 44</span>
+            </div>
+            <p class="vendor-desc">Enterprise software tools provider including Jira, Confluence, and Trello for team collaboration.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-L-G-44">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="docology.ai" data-category="Data & Document Processing" data-code="L-G 45" data-slug="L-G-45">
+            <div class="vendor-name">
+                docology.ai
+                <span class="vendor-code">L-G 45</span>
+            </div>
+            <p class="vendor-desc">AI-powered platform for intelligent document processing and management.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Data & Document Processing</span>
+                <span class="notes-indicator" id="notes-ind-L-G-45">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Kimchi" data-category="AI/ML Platforms & Models" data-code="L-G 46" data-slug="L-G-46">
+            <div class="vendor-name">
+                Kimchi
+                <span class="vendor-code">L-G 46</span>
+            </div>
+            <p class="vendor-desc">Emerging startup focused on AI or modern software tools.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-46">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="CLOUDFLARE" data-category="Cloud Infrastructure & Compute" data-code="L-G 47" data-slug="L-G-47">
+            <div class="vendor-name">
+                CLOUDFLARE
+                <span class="vendor-code">L-G 47</span>
+            </div>
+            <p class="vendor-desc">Global web infrastructure and cybersecurity company offering CDN, DNS, and zero-trust services.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-L-G-47">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="IBM" data-category="Cloud & Enterprise Platforms" data-code="L-G 48" data-slug="L-G-48">
+            <div class="vendor-name">
+                IBM
+                <span class="vendor-code">L-G 48</span>
+            </div>
+            <p class="vendor-desc">Global technology leader providing enterprise cloud services and the watsonx AI platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud & Enterprise Platforms</span>
+                <span class="notes-indicator" id="notes-ind-L-G-48">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="MERGE" data-category="APIs & Integration" data-code="L-G 49" data-slug="L-G-49">
+            <div class="vendor-name">
+                MERGE
+                <span class="vendor-code">L-G 49</span>
+            </div>
+            <p class="vendor-desc">Unified API platform providing integrations for HR, Payroll, ATS, and more.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">APIs & Integration</span>
+                <span class="notes-indicator" id="notes-ind-L-G-49">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="clarify Gradient" data-category="AI/ML Platforms & Models" data-code="L-G 50" data-slug="L-G-50">
+            <div class="vendor-name">
+                clarify Gradient
+                <span class="vendor-code">L-G 50</span>
+            </div>
+            <p class="vendor-desc">AI development platform for fine-tuning and running large language models efficiently.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-50">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="CODER" data-category="DevOps & Infrastructure" data-code="L-G 51" data-slug="L-G-51">
+            <div class="vendor-name">
+                CODER
+                <span class="vendor-code">L-G 51</span>
+            </div>
+            <p class="vendor-desc">Platform for self-hosted cloud development environments, moving workspaces off local laptops.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">DevOps & Infrastructure</span>
+                <span class="notes-indicator" id="notes-ind-L-G-51">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="SENTRY" data-category="Observability & Monitoring" data-code="L-G 52" data-slug="L-G-52">
+            <div class="vendor-name">
+                SENTRY
+                <span class="vendor-code">L-G 52</span>
+            </div>
+            <p class="vendor-desc">Developer-first application monitoring and error tracking software.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-L-G-52">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Traversal" data-category="AI/ML Platforms & Models" data-code="L-G 53" data-slug="L-G-53">
+            <div class="vendor-name">
+                Traversal
+                <span class="vendor-code">L-G 53</span>
+            </div>
+            <p class="vendor-desc">Startup developing cutting-edge artificial intelligence or tech solutions.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-53">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Crusoe" data-category="Cloud Infrastructure & Compute" data-code="L-G 54" data-slug="L-G-54">
+            <div class="vendor-name">
+                Crusoe
+                <span class="vendor-code">L-G 54</span>
+            </div>
+            <p class="vendor-desc">Clean computing infrastructure company powering AI while reducing natural gas flaring.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-L-G-54">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Fireworks AI" data-category="AI/ML Platforms & Models" data-code="L-G 55" data-slug="L-G-55">
+            <div class="vendor-name">
+                Fireworks AI
+                <span class="vendor-code">L-G 55</span>
+            </div>
+            <p class="vendor-desc">Generative AI platform providing fast, highly optimized inference for running open-source LLMs.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-L-G-55">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="greptile" data-category="Developer Tools & IDEs" data-code="H-S 1" data-slug="H-S-1">
+            <div class="vendor-name">
+                greptile
+                <span class="vendor-code">H-S 1</span>
+            </div>
+            <p class="vendor-desc">AI expert for codebases that helps developers understand and modify complex repositories.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-H-S-1">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="LangChain" data-category="AI/ML Platforms & Models" data-code="H-S 2" data-slug="H-S-2">
+            <div class="vendor-name">
+                LangChain
+                <span class="vendor-code">H-S 2</span>
+            </div>
+            <p class="vendor-desc">The standard open-source framework for building applications powered by large language models.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-H-S-2">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="warp" data-category="Developer Tools & IDEs" data-code="H-S 3" data-slug="H-S-3">
+            <div class="vendor-name">
+                warp
+                <span class="vendor-code">H-S 3</span>
+            </div>
+            <p class="vendor-desc">A blazing-fast, modern, Rust-based terminal with built-in AI capabilities.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-H-S-3">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="NEBIUS" data-category="Cloud Infrastructure & Compute" data-code="H-S 4" data-slug="H-S-4">
+            <div class="vendor-name">
+                NEBIUS
+                <span class="vendor-code">H-S 4</span>
+            </div>
+            <p class="vendor-desc">Cloud provider building AI-centric infrastructure and large-scale GPU clusters.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-H-S-4">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Optiver" data-category="Other" data-code="H-S 5" data-slug="H-S-5">
+            <div class="vendor-name">
+                Optiver
+                <span class="vendor-code">H-S 5</span>
+            </div>
+            <p class="vendor-desc">Leading global market maker and proprietary trading firm leveraging advanced tech.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Other</span>
+                <span class="notes-indicator" id="notes-ind-H-S-5">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="AssemblyAI" data-category="AI/ML Platforms & Models" data-code="H-S 6" data-slug="H-S-6">
+            <div class="vendor-name">
+                AssemblyAI
+                <span class="vendor-code">H-S 6</span>
+            </div>
+            <p class="vendor-desc">Leading AI models for speech-to-text, audio intelligence, and voice recognition.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-H-S-6">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Weights & Biases" data-category="Observability & Monitoring" data-code="H-S 7" data-slug="H-S-7">
+            <div class="vendor-name">
+                Weights & Biases
+                <span class="vendor-code">H-S 7</span>
+            </div>
+            <p class="vendor-desc">Essential developer tools for machine learning, including experiment tracking and model evaluation.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-H-S-7">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="twilio" data-category="Communications & Messaging" data-code="H-S 8" data-slug="H-S-8">
+            <div class="vendor-name">
+                twilio
+                <span class="vendor-code">H-S 8</span>
+            </div>
+            <p class="vendor-desc">Customer engagement platform used by developers to build voice, SMS, and email communications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Communications & Messaging</span>
+                <span class="notes-indicator" id="notes-ind-H-S-8">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Inngest" data-category="CI/CD & Workflow Automation" data-code="H-S 9" data-slug="H-S-9">
+            <div class="vendor-name">
+                Inngest
+                <span class="vendor-code">H-S 9</span>
+            </div>
+            <p class="vendor-desc">Developer platform for building reliable background jobs and workflows without queues.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">CI/CD & Workflow Automation</span>
+                <span class="notes-indicator" id="notes-ind-H-S-9">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Buildkite" data-category="CI/CD & Workflow Automation" data-code="H-S 10" data-slug="H-S-10">
+            <div class="vendor-name">
+                Buildkite
+                <span class="vendor-code">H-S 10</span>
+            </div>
+            <p class="vendor-desc">Flexible CI/CD platform for running fast, secure, and scalable automated testing pipelines.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">CI/CD & Workflow Automation</span>
+                <span class="notes-indicator" id="notes-ind-H-S-10">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Modular" data-category="AI/ML Platforms & Models" data-code="H-S 11" data-slug="H-S-11">
+            <div class="vendor-name">
+                Modular
+                <span class="vendor-code">H-S 11</span>
+            </div>
+            <p class="vendor-desc">Creators of the Mojo programming language and MAX platform to unify AI infrastructure.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-H-S-11">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="bem" data-category="Data & Document Processing" data-code="C1" data-slug="C1">
+            <div class="vendor-name">
+                bem
+                <span class="vendor-code">C1</span>
+            </div>
+            <p class="vendor-desc">Data transformation platform simplifying complex data mappings using AI.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Data & Document Processing</span>
+                <span class="notes-indicator" id="notes-ind-C1">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="mezmo" data-category="Observability & Monitoring" data-code="C2" data-slug="C2">
+            <div class="vendor-name">
+                mezmo
+                <span class="vendor-code">C2</span>
+            </div>
+            <p class="vendor-desc">Telemetry data platform (formerly LogDNA) for controlling and routing log data.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-C2">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="circleci" data-category="CI/CD & Workflow Automation" data-code="C3" data-slug="C3">
+            <div class="vendor-name">
+                circleci
+                <span class="vendor-code">C3</span>
+            </div>
+            <p class="vendor-desc">Leading continuous integration and continuous delivery (CI/CD) platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">CI/CD & Workflow Automation</span>
+                <span class="notes-indicator" id="notes-ind-C3">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Modal" data-category="Cloud Infrastructure & Compute" data-code="C4" data-slug="C4">
+            <div class="vendor-name">
+                Modal
+                <span class="vendor-code">C4</span>
+            </div>
+            <p class="vendor-desc">Serverless platform for running custom containerized code and AI models effortlessly in the cloud.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-C4">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Red Hat" data-category="Cloud & Enterprise Platforms" data-code="C5" data-slug="C5">
+            <div class="vendor-name">
+                Red Hat
+                <span class="vendor-code">C5</span>
+            </div>
+            <p class="vendor-desc">Leading provider of enterprise open-source software solutions and Kubernetes infrastructure.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud & Enterprise Platforms</span>
+                <span class="notes-indicator" id="notes-ind-C5">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Deepgram" data-category="AI/ML Platforms & Models" data-code="C6" data-slug="C6">
+            <div class="vendor-name">
+                Deepgram
+                <span class="vendor-code">C6</span>
+            </div>
+            <p class="vendor-desc">Foundational AI company providing fast, highly accurate speech-to-text and audio APIs.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-C6">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Prolific" data-category="Enterprise & Business Tools" data-code="C7" data-slug="C7">
+            <div class="vendor-name">
+                Prolific
+                <span class="vendor-code">C7</span>
+            </div>
+            <p class="vendor-desc">Platform for quickly sourcing reliable human participants for online research and AI training.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-C7">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="descope" data-category="Security & Identity" data-code="C8" data-slug="C8">
+            <div class="vendor-name">
+                descope
+                <span class="vendor-code">C8</span>
+            </div>
+            <p class="vendor-desc">Drag-and-drop customer authentication and identity management platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Security & Identity</span>
+                <span class="notes-indicator" id="notes-ind-C8">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="fiddler" data-category="Observability & Monitoring" data-code="C9" data-slug="C9">
+            <div class="vendor-name">
+                fiddler
+                <span class="vendor-code">C9</span>
+            </div>
+            <p class="vendor-desc">AI observability and model monitoring platform for ensuring responsible AI deployments.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-C9">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="RELAY" data-category="CI/CD & Workflow Automation" data-code="C10" data-slug="C10">
+            <div class="vendor-name">
+                RELAY
+                <span class="vendor-code">C10</span>
+            </div>
+            <p class="vendor-desc">Workflow automation and integration platform for tech and business teams.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">CI/CD & Workflow Automation</span>
+                <span class="notes-indicator" id="notes-ind-C10">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="tailscale" data-category="Security & Identity" data-code="C11" data-slug="C11">
+            <div class="vendor-name">
+                tailscale
+                <span class="vendor-code">C11</span>
+            </div>
+            <p class="vendor-desc">Zero trust VPN built on WireGuard that makes connecting devices and servers effortlessly secure.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Security & Identity</span>
+                <span class="notes-indicator" id="notes-ind-C11">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="SurrealDB" data-category="Databases & Data Storage" data-code="C12" data-slug="C12">
+            <div class="vendor-name">
+                SurrealDB
+                <span class="vendor-code">C12</span>
+            </div>
+            <p class="vendor-desc">Multi-model cloud database suitable for building real-time applications quickly.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-C12">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="promptql" data-category="AI/ML Platforms & Models" data-code="C13" data-slug="C13">
+            <div class="vendor-name">
+                promptql
+                <span class="vendor-code">C13</span>
+            </div>
+            <p class="vendor-desc">AI tool leveraging LLMs to query databases and interact with data securely.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-C13">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="VAPI" data-category="AI/ML Platforms & Models" data-code="C14" data-slug="C14">
+            <div class="vendor-name">
+                VAPI
+                <span class="vendor-code">C14</span>
+            </div>
+            <p class="vendor-desc">Voice AI platform designed for building, testing, and deploying conversational voice agents.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-C14">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Reflex" data-category="Developer Tools & IDEs" data-code="C15" data-slug="C15">
+            <div class="vendor-name">
+                Reflex
+                <span class="vendor-code">C15</span>
+            </div>
+            <p class="vendor-desc">Open-source framework that allows developers to build full-stack web apps entirely in pure Python.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-C15">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="aikido" data-category="Security & Identity" data-code="C16" data-slug="C16">
+            <div class="vendor-name">
+                aikido
+                <span class="vendor-code">C16</span>
+            </div>
+            <p class="vendor-desc">Developer-first software security platform consolidating multiple security tools.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Security & Identity</span>
+                <span class="notes-indicator" id="notes-ind-C16">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Reverium" data-category="AI/ML Platforms & Models" data-code="C17" data-slug="C17">
+            <div class="vendor-name">
+                Reverium
+                <span class="vendor-code">C17</span>
+            </div>
+            <p class="vendor-desc">Emerging tech startup specializing in data or AI applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-C17">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Superconductor" data-category="Cloud Infrastructure & Compute" data-code="C18" data-slug="C18">
+            <div class="vendor-name">
+                Superconductor
+                <span class="vendor-code">C18</span>
+            </div>
+            <p class="vendor-desc">Advanced platform for enterprise software or AI infrastructure optimization.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-C18">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="paper computers" data-category="Other" data-code="C19" data-slug="C19">
+            <div class="vendor-name">
+                paper computers
+                <span class="vendor-code">C19</span>
+            </div>
+            <p class="vendor-desc">Innovative hardware or software startup focused on novel computing experiences.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Other</span>
+                <span class="notes-indicator" id="notes-ind-C19">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="extend" data-category="Enterprise & Business Tools" data-code="C20" data-slug="C20">
+            <div class="vendor-name">
+                extend
+                <span class="vendor-code">C20</span>
+            </div>
+            <p class="vendor-desc">Virtual card and spend management platform for businesses.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-C20">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Modem" data-category="Communications & Messaging" data-code="C21" data-slug="C21">
+            <div class="vendor-name">
+                Modem
+                <span class="vendor-code">C21</span>
+            </div>
+            <p class="vendor-desc">Modern technology startup in the connectivity or software space.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Communications & Messaging</span>
+                <span class="notes-indicator" id="notes-ind-C21">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="box" data-category="Enterprise & Business Tools" data-code="C22" data-slug="C22">
+            <div class="vendor-name">
+                box
+                <span class="vendor-code">C22</span>
+            </div>
+            <p class="vendor-desc">Leading cloud content management, collaboration, and file sharing platform.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-C22">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="ZERO" data-category="Enterprise & Business Tools" data-code="C23" data-slug="C23">
+            <div class="vendor-name">
+                ZERO
+                <span class="vendor-code">C23</span>
+            </div>
+            <p class="vendor-desc">Productivity and email automation platform designed for professional service firms.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-C23">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="comet" data-category="Observability & Monitoring" data-code="C24" data-slug="C24">
+            <div class="vendor-name">
+                comet
+                <span class="vendor-code">C24</span>
+            </div>
+            <p class="vendor-desc">Machine learning platform for tracking experiments, managing models, and optimizing ML workflows.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-C24">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="GrowthBook" data-category="Testing & QA" data-code="C25" data-slug="C25">
+            <div class="vendor-name">
+                GrowthBook
+                <span class="vendor-code">C25</span>
+            </div>
+            <p class="vendor-desc">Open-source feature flagging and A/B testing platform for modern teams.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Testing & QA</span>
+                <span class="notes-indicator" id="notes-ind-C25">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="auth0" data-category="Security & Identity" data-code="C26" data-slug="C26">
+            <div class="vendor-name">
+                auth0
+                <span class="vendor-code">C26</span>
+            </div>
+            <p class="vendor-desc">Identity and access management platform (by Okta) for securing applications.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Security & Identity</span>
+                <span class="notes-indicator" id="notes-ind-C26">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="THE VELOCITY ROOM" data-category="Other" data-code="C27" data-slug="C27">
+            <div class="vendor-name">
+                THE VELOCITY ROOM
+                <span class="vendor-code">C27</span>
+            </div>
+            <p class="vendor-desc">Specialized platform for optimizing software performance and team velocity.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Other</span>
+                <span class="notes-indicator" id="notes-ind-C27">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="vast.ai" data-category="Cloud Infrastructure & Compute" data-code="C28" data-slug="C28">
+            <div class="vendor-name">
+                vast.ai
+                <span class="vendor-code">C28</span>
+            </div>
+            <p class="vendor-desc">Decentralized GPU rental marketplace offering cost-effective compute for AI workloads.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-C28">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="PRIOR" data-category="Other" data-code="C29" data-slug="C29">
+            <div class="vendor-name">
+                PRIOR
+                <span class="vendor-code">C29</span>
+            </div>
+            <p class="vendor-desc">Emerging technology startup.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Other</span>
+                <span class="notes-indicator" id="notes-ind-C29">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="SOLO.IO" data-category="APIs & Integration" data-code="C30" data-slug="C30">
+            <div class="vendor-name">
+                SOLO.IO
+                <span class="vendor-code">C30</span>
+            </div>
+            <p class="vendor-desc">Application networking company specializing in API gateways and service mesh.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">APIs & Integration</span>
+                <span class="notes-indicator" id="notes-ind-C30">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="POSTMAN" data-category="APIs & Integration" data-code="C31" data-slug="C31">
+            <div class="vendor-name">
+                POSTMAN
+                <span class="vendor-code">C31</span>
+            </div>
+            <p class="vendor-desc">The leading API platform for building, testing, and using APIs.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">APIs & Integration</span>
+                <span class="notes-indicator" id="notes-ind-C31">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="DigitalOcean" data-category="Cloud Infrastructure & Compute" data-code="C32" data-slug="C32">
+            <div class="vendor-name">
+                DigitalOcean
+                <span class="vendor-code">C32</span>
+            </div>
+            <p class="vendor-desc">Cloud computing provider offering simple, cost-effective virtual servers for developers.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-C32">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="granica" data-category="Cloud Infrastructure & Compute" data-code="S1" data-slug="S1">
+            <div class="vendor-name">
+                granica
+                <span class="vendor-code">S1</span>
+            </div>
+            <p class="vendor-desc">AI efficiency platform that optimizes and reduces cloud data storage costs securely.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-S1">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="FLOX" data-category="DevOps & Infrastructure" data-code="S2" data-slug="S2">
+            <div class="vendor-name">
+                FLOX
+                <span class="vendor-code">S2</span>
+            </div>
+            <p class="vendor-desc">Developer environments manager powered by Nix to standardize environments across teams.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">DevOps & Infrastructure</span>
+                <span class="notes-indicator" id="notes-ind-S2">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="AMPERSAND" data-category="APIs & Integration" data-code="S3" data-slug="S3">
+            <div class="vendor-name">
+                AMPERSAND
+                <span class="vendor-code">S3</span>
+            </div>
+            <p class="vendor-desc">Embedded integration platform helping SaaS companies build user-facing integrations faster.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">APIs & Integration</span>
+                <span class="notes-indicator" id="notes-ind-S3">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="etched" data-category="Cloud Infrastructure & Compute" data-code="S4" data-slug="S4">
+            <div class="vendor-name">
+                etched
+                <span class="vendor-code">S4</span>
+            </div>
+            <p class="vendor-desc">Hardware startup building specialized, high-performance silicon chips solely for transformer models.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-S4">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="1Password" data-category="Security & Identity" data-code="S5" data-slug="S5">
+            <div class="vendor-name">
+                1Password
+                <span class="vendor-code">S5</span>
+            </div>
+            <p class="vendor-desc">Industry-leading password manager and digital vault for securing sensitive credentials.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Security & Identity</span>
+                <span class="notes-indicator" id="notes-ind-S5">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Cognition" data-category="AI/ML Platforms & Models" data-code="S6" data-slug="S6">
+            <div class="vendor-name">
+                Cognition
+                <span class="vendor-code">S6</span>
+            </div>
+            <p class="vendor-desc">Applied AI lab and creators of Devin, the world's first fully autonomous AI software engineer.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-S6">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="PostHog" data-category="Testing & QA" data-code="S7" data-slug="S7">
+            <div class="vendor-name">
+                PostHog
+                <span class="vendor-code">S7</span>
+            </div>
+            <p class="vendor-desc">Open-source product analytics platform that includes session recording and feature flags.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Testing & QA</span>
+                <span class="notes-indicator" id="notes-ind-S7">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="dash0" data-category="Observability & Monitoring" data-code="S8" data-slug="S8">
+            <div class="vendor-name">
+                dash0
+                <span class="vendor-code">S8</span>
+            </div>
+            <p class="vendor-desc">Observability platform natively built for OpenTelemetry to streamline cloud monitoring.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Observability & Monitoring</span>
+                <span class="notes-indicator" id="notes-ind-S8">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Firecrawl" data-category="Web Scraping & Data Extraction" data-code="S9" data-slug="S9">
+            <div class="vendor-name">
+                Firecrawl
+                <span class="vendor-code">S9</span>
+            </div>
+            <p class="vendor-desc">API that crawls any website and converts it directly into clean markdown for LLMs.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Web Scraping & Data Extraction</span>
+                <span class="notes-indicator" id="notes-ind-S9">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="LanceDB" data-category="Databases & Data Storage" data-code="S10" data-slug="S10">
+            <div class="vendor-name">
+                LanceDB
+                <span class="vendor-code">S10</span>
+            </div>
+            <p class="vendor-desc">Open-source, developer-friendly serverless vector database that integrates easily with AI stacks.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-S10">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="roam" data-category="Other" data-code="S11" data-slug="S11">
+            <div class="vendor-name">
+                roam
+                <span class="vendor-code">S11</span>
+            </div>
+            <p class="vendor-desc">Innovative technology startup in the data or software engineering space.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Other</span>
+                <span class="notes-indicator" id="notes-ind-S11">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Spec27" data-category="Developer Tools & IDEs" data-code="S12" data-slug="S12">
+            <div class="vendor-name">
+                Spec27
+                <span class="vendor-code">S12</span>
+            </div>
+            <p class="vendor-desc">Software startup specializing in modern development tools or platforms.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-S12">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Ravenna" data-category="Enterprise & Business Tools" data-code="S13" data-slug="S13">
+            <div class="vendor-name">
+                Ravenna
+                <span class="vendor-code">S13</span>
+            </div>
+            <p class="vendor-desc">Private networking, data, or enterprise software solutions provider.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Enterprise & Business Tools</span>
+                <span class="notes-indicator" id="notes-ind-S13">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="CopilotKit" data-category="AI/ML Platforms & Models" data-code="S14" data-slug="S14">
+            <div class="vendor-name">
+                CopilotKit
+                <span class="vendor-code">S14</span>
+            </div>
+            <p class="vendor-desc">Open-source framework that makes it easy to build custom AI copilots directly into your app.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-S14">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Tigris" data-category="Cloud Infrastructure & Compute" data-code="S15" data-slug="S15">
+            <div class="vendor-name">
+                Tigris
+                <span class="vendor-code">S15</span>
+            </div>
+            <p class="vendor-desc">Globally distributed, S3-compatible object storage platform designed for modern workloads.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Cloud Infrastructure & Compute</span>
+                <span class="notes-indicator" id="notes-ind-S15">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="FalkorDB" data-category="Databases & Data Storage" data-code="S16" data-slug="S16">
+            <div class="vendor-name">
+                FalkorDB
+                <span class="vendor-code">S16</span>
+            </div>
+            <p class="vendor-desc">Low-latency Graph database designed to power advanced data relationships and AI context.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-S16">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="OpenHands" data-category="AI/ML Platforms & Models" data-code="S17" data-slug="S17">
+            <div class="vendor-name">
+                OpenHands
+                <span class="vendor-code">S17</span>
+            </div>
+            <p class="vendor-desc">Open-source platform for AI software engineering agents (formerly OpenDevin).</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-S17">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="scalekit" data-category="Security & Identity" data-code="S18" data-slug="S18">
+            <div class="vendor-name">
+                scalekit
+                <span class="vendor-code">S18</span>
+            </div>
+            <p class="vendor-desc">Enterprise-ready authentication platform purpose-built for B2B SaaS companies.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Security & Identity</span>
+                <span class="notes-indicator" id="notes-ind-S18">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="Convex" data-category="Databases & Data Storage" data-code="S19" data-slug="S19">
+            <div class="vendor-name">
+                Convex
+                <span class="vendor-code">S19</span>
+            </div>
+            <p class="vendor-desc">Backend-as-a-Service for reactive web development, replacing databases and state management.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Databases & Data Storage</span>
+                <span class="notes-indicator" id="notes-ind-S19">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="builder.io" data-category="Developer Tools & IDEs" data-code="S20" data-slug="S20">
+            <div class="vendor-name">
+                builder.io
+                <span class="vendor-code">S20</span>
+            </div>
+            <p class="vendor-desc">Visual CMS that lets teams drag-and-drop to build web experiences on top of any tech stack.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Developer Tools & IDEs</span>
+                <span class="notes-indicator" id="notes-ind-S20">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="ENCORD" data-category="AI/ML Platforms & Models" data-code="S21" data-slug="S21">
+            <div class="vendor-name">
+                ENCORD
+                <span class="vendor-code">S21</span>
+            </div>
+            <p class="vendor-desc">Training data platform tailored for computer vision and generative AI model development.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-S21">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="TDK" data-category="Other" data-code="K2" data-slug="K2">
+            <div class="vendor-name">
+                TDK
+                <span class="vendor-code">K2</span>
+            </div>
+            <p class="vendor-desc">Multinational electronics company manufacturing components and data storage media.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Other</span>
+                <span class="notes-indicator" id="notes-ind-K2">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="VERIS" data-category="Other" data-code="K4" data-slug="K4">
+            <div class="vendor-name">
+                VERIS
+                <span class="vendor-code">K4</span>
+            </div>
+            <p class="vendor-desc">Technology startup providing software or data solutions.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">Other</span>
+                <span class="notes-indicator" id="notes-ind-K4">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="vendor-card" data-name="cogneo" data-category="AI/ML Platforms & Models" data-code="K5" data-slug="K5">
+            <div class="vendor-name">
+                cogneo
+                <span class="vendor-code">K5</span>
+            </div>
+            <p class="vendor-desc">AI software provider focused on intelligent automation or analytics.</p>
+            <div class="vendor-footer">
+                <span class="vendor-category">AI/ML Platforms & Models</span>
+                <span class="notes-indicator" id="notes-ind-K5">Notes saved</span>
+            </div>
+        </div>
+        
+        <div class="no-results" id="noResults">
+            No vendors found matching your filters.
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div>
+                    <p class="modal-title" id="modalTitle"></p>
+                    <p class="modal-subtitle" id="modalSubtitle"></p>
+                </div>
+                <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+            </div>
+            <textarea class="modal-textarea" id="modalTextarea" placeholder="Add your notes about this vendor..."></textarea>
+            <p class="modal-status" id="modalStatus"></p>
+        </div>
+    </div>
+    <script>
+        function filterVendors() {
+            let searchInput = document.getElementById('searchInput').value.toLowerCase();
+            let selectedCategory = document.getElementById('categoryFilter').value;
+            let cards = document.getElementsByClassName('vendor-card');
+            let visibleCount = 0;
+
+            for (let i = 0; i < cards.length; i++) {
+                let name = cards[i].getAttribute('data-name').toLowerCase();
+                let category = cards[i].getAttribute('data-category');
+                let matchesSearch = name.includes(searchInput);
+                let matchesCategory = (selectedCategory === 'all' || category === selectedCategory);
+
+                if (matchesSearch && matchesCategory) {
+                    cards[i].style.display = "";
+                    visibleCount++;
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+
+            document.getElementById('noResults').style.display = visibleCount === 0 ? 'block' : 'none';
+            document.getElementById('resultCount').textContent = visibleCount + ' vendor' + (visibleCount === 1 ? '' : 's');
+        }
+
+        const NOTES_PREFIX = 'vendorNotes_';
+        let activeCode = null;
+        let saveTimer = null;
+
+        function noteKey(code) {
+            return NOTES_PREFIX + code;
+        }
+
+        function loadNote(code) {
+            try {
+                return localStorage.getItem(noteKey(code)) || '';
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function saveNote(code, text) {
+            try {
+                if (text.trim().length > 0) {
+                    localStorage.setItem(noteKey(code), text);
+                } else {
+                    localStorage.removeItem(noteKey(code));
+                }
+            } catch (e) {
+                document.getElementById('modalStatus').textContent = 'Could not save (storage unavailable)';
+                return;
+            }
+            updateIndicator(code);
+        }
+
+        function updateIndicator(code) {
+            let card = document.querySelector('.vendor-card[data-code="' + cssEscape(code) + '"]');
+            if (!card) return;
+            let slug = card.getAttribute('data-slug');
+            let indicator = document.getElementById('notes-ind-' + slug);
+            if (!indicator) return;
+            let hasNote = loadNote(code).trim().length > 0;
+            indicator.style.display = hasNote ? 'inline-block' : 'none';
+        }
+
+        function cssEscape(value) {
+            return value.replace(/["\\]/g, '\\$&');
+        }
+
+        function initNotesIndicators() {
+            let cards = document.getElementsByClassName('vendor-card');
+            for (let i = 0; i < cards.length; i++) {
+                updateIndicator(cards[i].getAttribute('data-code'));
+            }
+        }
+
+        function openNotesModal(card) {
+            let code = card.getAttribute('data-code');
+            let name = card.getAttribute('data-name');
+            let category = card.getAttribute('data-category');
+            activeCode = code;
+
+            document.getElementById('modalTitle').textContent = name;
+            document.getElementById('modalSubtitle').textContent = code + ' • ' + category;
+            document.getElementById('modalTextarea').value = loadNote(code);
+            document.getElementById('modalStatus').textContent = '';
+            document.getElementById('modalOverlay').classList.add('open');
+            document.getElementById('modalTextarea').focus();
+        }
+
+        function closeNotesModal() {
+            document.getElementById('modalOverlay').classList.remove('open');
+            activeCode = null;
+        }
+
+        document.getElementById('vendorList').addEventListener('click', function(e) {
+            let card = e.target.closest('.vendor-card');
+            if (card) {
+                openNotesModal(card);
+            }
+        });
+
+        document.getElementById('modalClose').addEventListener('click', closeNotesModal);
+
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNotesModal();
+            }
+        });
+
+        document.getElementById('modalTextarea').addEventListener('input', function() {
+            if (!activeCode) return;
+            let text = this.value;
+            document.getElementById('modalStatus').textContent = 'Saving...';
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(function() {
+                saveNote(activeCode, text);
+                document.getElementById('modalStatus').textContent = 'Saved';
+            }, 400);
+        });
+
+        filterVendors();
+        initNotesIndicators();
+    </script>
+</body>
+</html>
