@@ -1,2 +1,2 @@
 # AIEWX
-hosting for AI engineering world expo site.
+hosting for AI engineering world expo site. deploy edit 
